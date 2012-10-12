@@ -7,6 +7,7 @@
                 var t = this,
                 tagUL = $(t);
                 if(!tagUL.is('ul')) return true;
+                tagUL.addClass('tagme-container');
                 var tagInput = null,
                 existTags = [];
                 addTags(options, tagUL, existTags);
@@ -59,7 +60,7 @@
                             options.afterDelete.call(this, tag.text());
                         }
                     }
-                    tagInput = $('<input>', {class: 'tagme-input'}).keydown(function(e){
+                    tagInput = $('<input>', {class: 'tagme-input', placeholder: options.inputPlaceHolder}).keydown(function(e){
                         var code = e.which,
                         ti = $(this);
                         if(code === 13 || code === 188 || code === options.addKey.charCodeAt(0)){
@@ -99,11 +100,12 @@
                         }
                     });
                 }
-                
+                return true;
             });
         }else if(typeof options === 'string' && publicMethod[options]) {
             return publicMethod[options].apply(this, Array.prototype.slice.call(arguments, 1));
         }
+        return true;
     }
     $.fn.tagme.defaultOptions = {
         readOnly: false,
@@ -114,7 +116,8 @@
         maxTags: 0,
         autocomplete: false,
         autocompleteTagsList: [],
-        autocompleteMinChars: 0
+        autocompleteMinChars: 0,
+        inputPlaceHolder: '回车确认添加'
         //onDelete: function(){},
         //afterDelete: function(){},
         //onAdd: function(){},
@@ -128,7 +131,7 @@
     }
     //publicMethods
     var publicMethod = {
-        serializedTags: function(){
+        getSerializedTags: function(){
             var currentTags = [];
             $(this).find('li.tagme-item').each(function(idx, e){
                 currentTags.push($(e).text());
@@ -145,6 +148,9 @@
         clearTags: function(){
             $(this).find('li.tagme-item').remove();
             return true;
+        },
+        destroy: function(){
+            return $(this).empty().unbind();
         },
         version: function(){
             return '1.0.0';

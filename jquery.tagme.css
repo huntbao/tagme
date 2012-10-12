@@ -1,14 +1,6 @@
 /*@huntbao*/
 .tagme-container{
-    border-radius: 7px;
-    border: 1px solid #dfdfdf;
-    overflow: hidden;
-    min-height: 30px;
     line-height: 30px;
-    cursor: text;
-    font-family: "\5FAE\8F6F\96C5\9ED1", sans-serif;
-    padding: 0px 5px;
-    margin: 10px 0px;
     cursor: default;
 }
 .tagme-container li.tagme-item{
@@ -38,5 +30,3 @@
     font-size: 12px;
     outline: none;
 }
-
-
