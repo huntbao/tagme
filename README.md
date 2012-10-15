@@ -1,4 +1,5 @@
-##Tag Me Description ##
+Tag Me
+=====
     
 Tag Me is a jQuery plugin used for managing tag-type metadata.
 
