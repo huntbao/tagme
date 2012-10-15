@@ -256,10 +256,11 @@ along with this program.  If not, see < http://www.gnu.org/licenses/ >.
                 $(this).data('existtags', []).find('li.tagme-item').remove();
             }
             addTags($(this), arguments[0][0]);
+            return $(this);
         },
         clearTags: function(){
             $(this).data('existtags', []).find('li.tagme-item').remove();
-            return true;
+            return $(this);
         },
         destroy: function(){
             return $(this).empty().unbind();
