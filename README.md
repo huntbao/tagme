@@ -3,24 +3,21 @@ Tag Me
 
 Tag Me is a jQuery plugin used for managing tag-type metadata.
 
-------------------------------------------------------------------------------------------
-Description 
-------------------------------------------------------------------------------------------
+
+##Description ##
     
 Tag Me is a jQuery plugin used for managing tag-type metadata.
 
------------------------------------------------------------
-Basic Usage Instructions
------------------------------------------------------------
+
+##Basic Usage Instructions##
     
 * Click on the tag input, type some words, hit enter or comma 
   or the character your specified via options to add a tag.
     
 * Hitting backspace inside the tag input or clicking on the tag to remove a tag.
     
------------------------------------------------------------
-Plugin Options
------------------------------------------------------------
-    
+
+##Plugin Options##
+
 see jquery.tagme.js
 
