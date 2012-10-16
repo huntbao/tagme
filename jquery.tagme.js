@@ -115,7 +115,7 @@ along with this program.  If not, see < http://www.gnu.org/licenses/ >.
                     var checkAddTagValue = function(value){
                         var checkTagResult = addTagCheck(value, tagUL),
                         opt = tagUL.data('options');
-                        if(checkTagResult === 0){
+                        if(checkTagResult === true){
                             //can add
                             var onAddResult = true;
                             if($.isFunction(opt.onAdd)){
@@ -126,26 +126,6 @@ along with this program.  If not, see < http://www.gnu.org/licenses/ >.
                             }
                             if($.isFunction(opt.afterAdd)){
                                 opt.afterAdd.call(this, value);
-                            }
-                        }else if(checkTagResult === 1){
-                            //tag exist
-                            if($.isFunction(opt.onExist)){
-                                opt.onExist.call(this, value);
-                            }
-                        }else if(checkTagResult === 2){
-                            //tag unavailable
-                            if($.isFunction(opt.onUnAvailable)){
-                                opt.onUnAvailable.call(this, value);
-                            }
-                        }else if(checkTagResult === 3){
-                            //max tag number reached
-                            if($.isFunction(opt.onMaxTag)){
-                                opt.onMaxTag.call(this, value);
-                            }
-                        }else if(checkTagResult === 4){
-                            //chars length unmatch
-                            if($.isFunction(opt.onErrorCharsLength)){
-                                opt.onErrorCharsLength.call(this, value);
                             }
                         }
                     },
@@ -308,16 +288,65 @@ along with this program.  If not, see < http://www.gnu.org/licenses/ >.
     function mergeArrayUnique(arr1, arr2){
         return arr1.concat(arr2).unique();
     }
-    function checkLength(tagValue, options){
+    function checkLength(options, tagValue){
         if(options.charsLength !== '0-0'){
             var chars = options.charsLength.split('-'),
             minChars = parseInt(chars[0]),
             maxChars = parseInt(chars[1]);
             if(minChars <= maxChars){
                 if(minChars !== 0 && tagValue.length < minChars || maxChars !== 0 && tagValue.length > maxChars){
+                    //chars length unmatch
+                    if($.isFunction(options.onErrorCharsLength)){
+                        options.onErrorCharsLength.call(this, tagValue);
+                    }
                     return false;
                 }
             }
+        }
+        return true;
+    }
+    function checkMaxTags(options, existTags){
+        if(options.maxTags === 0){
+            return true;
+        }
+        if(options.maxTags > existTags.length){
+            return true;
+        }
+        //max tag number reached
+        if($.isFunction(options.onMaxTag)){
+            options.onMaxTag.call(this, existTags.length);
+        }
+        return false;
+    }
+    function checkExistTag(options, newTagValue, existTags){
+        var exist = existTags.indexOf(newTagValue);
+        if(exist !== -1){
+            //tag exist
+            if($.isFunction(options.onExist)){
+                options.onExist.call(this, newTagValue);
+            }
+            return true;
+        }
+        return false;
+    }
+    function checkAvailableTag(options, newTagValue){
+        if(newTagValue === ''){
+            //tag available
+            if($.isFunction(options.onUnAvailable)){
+                options.onUnAvailable.call(this, newTagValue);
+            }
+            return false;
+        }
+        if(options.availableTags === true){
+            return true;
+        }
+        var available = options.availableTags.indexOf(newTagValue);
+        if(available === -1){
+            //tag available
+            if($.isFunction(options.onUnAvailable)){
+                options.onUnAvailable.call(this, newTagValue);
+            }
+            return false;
         }
         return true;
     }
@@ -326,11 +355,9 @@ along with this program.  If not, see < http://www.gnu.org/licenses/ >.
         var existTags = tagUL.data('existtags'),
         options = tagUL.data('options');
         $.each(tagsArr, function(idx, tagValue){
-            if((options.maxTags === 0 || options.maxTags > existTags.length) && checkLength(tagValue, options)){
-                if(options.availableTags === true || $.isArray(options.availableTags) && options.availableTags.indexOf(tagValue) !== -1){
-                    tagUL.append($('<li>', {class: 'tagme-item', text: tagValue}));
-                    existTags.push(tagValue);
-                }
+            if(addTagCheck(tagValue, tagUL)){
+                tagUL.append($('<li>', {class: 'tagme-item', text: tagValue}));
+                existTags.push(tagValue);
             }
         });
         var tagInput = tagUL.find('.tagme-inputwrap');
@@ -368,32 +395,19 @@ along with this program.  If not, see < http://www.gnu.org/licenses/ >.
     function addTagCheck(newTagValue, tagUL){
         var existTags = tagUL.data('existtags'),
         options = tagUL.data('options');
-        function checkExist(){
-            var exist = existTags.indexOf(newTagValue);
-            return exist === -1 ? false : true;
+        if(checkMaxTags(options, existTags) === false){
+            return true;
         }
-        if(newTagValue === ''){
-            return 2;//empty string is always unvailable
+        if(checkLength(options, newTagValue) === false){
+            return true;
         }
-        if(options.maxTags !== 0 && options.maxTags <= existTags.length){
-            return 3;//exceed max allowed tag number
+        var available = checkAvailableTag(options, newTagValue);
+        if(available){
+            var exist = checkExistTag(options, newTagValue, existTags);
+            return exist ? false : true;
+        }else{
+            return false;
         }
-        if(checkLength(newTagValue, options) === false){
-            return 4;
-        }
-        if(options.availableTags === true){
-            var exist = checkExist();
-            return exist ? 1 : 0;
-        }
-        if($.isArray(options.availableTags)){
-            var available = options.availableTags.indexOf(newTagValue);
-            if(available !== -1){
-                var exist = checkExist();
-                return exist ? 1 : 0;
-            }else{
-                return 2;
-            }
-        }
-        return false;
+        return true;
     }
 })(jQuery);
