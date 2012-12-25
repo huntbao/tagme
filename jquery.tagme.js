@@ -1,5 +1,5 @@
 ﻿/*
-jQuery Tag Me v1.0.0
+jQuery Tag Me v1.0.1
 Copyright (C) 2012- Hunt Bao
 Hunt Bao - gzooler@gmail.com
 
@@ -43,15 +43,13 @@ Tag data specific options:
 Option                 Description                                          Default Value
 -------------------    ---------------------------------------------------  --------------
 readOnly               tags can edit or not                                 false
-addKey                 character pressed to add a tagName                   '，'
+addKey                 character pressed to add a tagName                   ','
 availableTags          only tags in this array can be used,                 
                        'true' means any tag can be used                     true
 charsLength            tag's length must match this pattern                 
                        '0-0' means any length is allowed                    '0-0'
 maxTags                max number of tags. 0 means no constraints           0
 autocomplete           autocomplete function, depends on jQuery UI          false
-autocompleteTagsList   autocomplete tags list                               []
-autocompleteMinChars   autocomplete minimun characters                       0
 inputPlaceHolder       tag input placeholder                                '回车确认添加'
 
 Callback options:
@@ -99,6 +97,7 @@ You should have received a copy of the Lesser GNU General Public License
 along with this program.  If not, see < http://www.gnu.org/licenses/ >.
 
 */
+define('#libs/jquery/tagme/jquery.tagme.js', [], function() {
 (function($, undefined){
     $.fn.tagme = function(options){
         if(typeof options === 'object' || options === undefined){
@@ -142,28 +141,26 @@ along with this program.  If not, see < http://www.gnu.org/licenses/ >.
                             opt.afterDelete.call(this, tag.text());
                         }
                     }
-                    tagInput = $('<input>', {class: 'tagme-input', placeholder: options.inputPlaceHolder}).keydown(function(e){
+                    tagInput = $('<input>', {'class': 'tagme-input', placeholder: options.inputPlaceHolder}).keydown(function(e){
                         var code = e.which,
                         ti = $(this),
                         opt = tagUL.data('options');
                         if(code === 13 || code === 188 || code === opt.addKey.charCodeAt(0)){
                             checkAddTagValue($.trim(ti.val()));
+                            return false;
                         }else if(code === 8 && ti.val() === ''){
                             checkRemoveTag(ti.parent().prev());
                         }
                     });
-                    tagUL.append($('<li>', {class: 'tagme-inputwrap'}).append(tagInput));
+                    tagUL.append($('<li>', {'class': 'tagme-inputwrap'}).append(tagInput));
                     if(options.autocomplete && $.isFunction($.fn.autocomplete)){
-                        options.autocompleteTagsList = mergeArrayUnique(options.autocompleteTagsList, options.initTags).sort();
-                        tagInput.autocomplete({
-                            source: options.autocompleteTagsList,
-                            select: function(event, ui){
-                                if(event.which === 13) return false;
-                                checkAddTagValue($.trim(ui.item.value));
-                                return false;
-                            },
-                            minLength: options.autocompleteMinChars
-                        }).focus(function (){
+                        var autocompleteOption = options.autocomplete;
+                        autocompleteOption.select = function(event, ui){
+                        	if(event.which === 13) return false;
+                            checkAddTagValue($.trim(ui.item.value));
+                            return false;
+                        }
+                        tagInput.autocomplete(autocompleteOption).focus(function (){
                             if($(this).val() === ''){
                                 $(this).autocomplete('search', '');
                             }
@@ -194,14 +191,12 @@ along with this program.  If not, see < http://www.gnu.org/licenses/ >.
     }
     $.fn.tagme.defaultOptions = {
         readOnly: false,
-        addKey: '，',
+        addKey: ',',
         initTags: [],
         availableTags: true,
         charsLength: '0-0',
         maxTags: 0,
         autocomplete: false,
-        autocompleteTagsList: [],
-        autocompleteMinChars: 0,
         inputPlaceHolder: '回车确认添加'
         //onDelete: function(){},
         //afterDelete: function(){},
@@ -246,7 +241,7 @@ along with this program.  If not, see < http://www.gnu.org/licenses/ >.
             return $(this).empty().unbind();
         },
         version: function(){
-            return '1.0.0';
+            return '1.0.1';
         }
     }
     if(typeof Array.prototype.indexOf !== 'function'){
@@ -271,22 +266,6 @@ along with this program.  If not, see < http://www.gnu.org/licenses/ >.
                 return false;
             }
         }
-    }
-    if(typeof Array.prototype.unique != 'function'){
-        Array.prototype.unique = function(){
-            var a = this.concat();
-            for(var i = 0; i < a.length; ++i){
-                for(var j = i + 1; j < a.length; ++j){
-                    if(a[i] === a[j]){
-                        a.splice(j, 1);
-                    }
-                }
-            }
-            return a;
-        }
-    }
-    function mergeArrayUnique(arr1, arr2){
-        return arr1.concat(arr2).unique();
     }
     function checkLength(options, tagValue){
         if(options.charsLength !== '0-0'){
@@ -356,7 +335,7 @@ along with this program.  If not, see < http://www.gnu.org/licenses/ >.
         options = tagUL.data('options');
         $.each(tagsArr, function(idx, tagValue){
             if(addTagCheck(tagValue, tagUL)){
-                tagUL.append($('<li>', {class: 'tagme-item', text: tagValue}));
+                tagUL.append($('<li>', {'class': 'tagme-item', text: tagValue}));
                 existTags.push(tagValue);
             }
         });
@@ -370,17 +349,11 @@ along with this program.  If not, see < http://www.gnu.org/licenses/ >.
         addTags(tagUL, tagUL.data('options').initTags);
     }
     function addNewTag(tagInput, tagValue, tagUL){
-        $('<li>', {class: 'tagme-item', text: tagValue}).insertBefore(tagInput.val('').parent());
+        $('<li>', {'class': 'tagme-item', text: tagValue}).insertBefore(tagInput.val('').parent());
         var existTags = tagUL.data('existtags'),
         options = tagUL.data('options');
         existTags.push(tagValue);
         tagUL.data('existtags', existTags);
-        if(options.autocomplete && $.isFunction($.fn.autocomplete)){
-            if(options.autocompleteTagsList.indexOf(tagValue) === -1){
-                options.autocompleteTagsList.push(tagValue);
-                tagInput.autocomplete('option', 'source', options.autocompleteTagsList.sort());
-            }
-        }
         tagInput.focus();
     }
     function removeTag(tagEl, tagUL, tagInput){
@@ -411,3 +384,4 @@ along with this program.  If not, see < http://www.gnu.org/licenses/ >.
         return true;
     }
 })(jQuery);
+});
