@@ -1,5 +1,5 @@
 ﻿/*
-jQuery Tag Me v1.0.1
+jQuery Tag Me v1.0.0
 Copyright (C) 2012- Hunt Bao
 Hunt Bao - gzooler@gmail.com
 
@@ -97,7 +97,6 @@ You should have received a copy of the Lesser GNU General Public License
 along with this program.  If not, see < http://www.gnu.org/licenses/ >.
 
 */
-define('#libs/jquery/tagme/jquery.tagme.js', [], function() {
 (function($, undefined){
     $.fn.tagme = function(options){
         if(typeof options === 'object' || options === undefined){
@@ -241,7 +240,7 @@ define('#libs/jquery/tagme/jquery.tagme.js', [], function() {
             return $(this).empty().unbind();
         },
         version: function(){
-            return '1.0.1';
+            return '1.0.0';
         }
     }
     if(typeof Array.prototype.indexOf !== 'function'){
@@ -384,4 +383,3 @@ define('#libs/jquery/tagme/jquery.tagme.js', [], function() {
         return true;
     }
 })(jQuery);
-});
