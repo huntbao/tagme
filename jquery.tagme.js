@@ -1,4 +1,4 @@
-﻿/*
+/*
 jQuery Tag Me v1.0.0
 Copyright (C) 2012- Hunt Bao
 Hunt Bao - gzooler@gmail.com
@@ -140,7 +140,7 @@ along with this program.  If not, see < http://www.gnu.org/licenses/ >.
                             opt.afterDelete.call(this, tag.text());
                         }
                     }
-                    tagInput = $('<input>', {'class': 'tagme-input', placeholder: options.inputPlaceHolder}).keydown(function(e){
+                    tagInput = $('<input>', {'class': 'tagme-input'}).keydown(function(e){
                         var code = e.which,
                         ti = $(this),
                         opt = tagUL.data('options');
@@ -165,6 +165,7 @@ along with this program.  If not, see < http://www.gnu.org/licenses/ >.
                             }
                         });
                     }
+                    tagInput.prop('placeholder', options.inputPlaceHolder);
                     tagUL.delegate('.tagme-item', 'click', function(e){
                         checkRemoveTag($(this));
                     }).click(function(e){
@@ -339,6 +340,7 @@ along with this program.  If not, see < http://www.gnu.org/licenses/ >.
             }
         });
         var tagInput = tagUL.find('.tagme-inputwrap');
+        tagInput.find('.tagme-input').prop('placeholder', tagUL.data('options').inputPlaceHolder);
         if(tagInput.length > 0){
             tagUL.append(tagInput);//move taginput to last
         }
